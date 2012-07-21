@@ -80,20 +80,45 @@ when "init"
 
 when "smf"
   local_path = ::File.join(Chef::Config[:file_cache_path], "/")
-  template "/lib/svc/method/chef-client" do
-    source "solaris/chef-client.erb"
-    owner "root"
-    group "root"
-    mode "0777"
-    notifies :restart, "service[chef-client]"
-  end
   
-  template (local_path + "chef-client.xml") do
-    source "solaris/manifest.xml.erb"
-    owner "root"
-    group "root"
-    mode "0644"
-    notifies :run, "execute[load chef-client manifest]", :immediately
+  case node[:platform]
+  when "smartos"
+    directory "/etc/svc/method" do
+      action :create
+    end
+  
+    template "/etc/svc/method/chef-client" do
+       source "smartos/chef-client.erb"
+       owner "root"
+       group "root"
+       mode "0777"
+       notifies :restart, "service[chef-client]"
+     end
+  
+    template (local_path + "chef-client.xml") do
+      source "smartos/manifest.xml.erb"
+      owner "root"
+      group "root"
+      mode "0644"
+      notifies :run, "execute[load chef-client manifest]", :immediately
+    end
+  else
+    local_path = ::File.join(Chef::Config[:file_cache_path], "/")
+      template "/lib/svc/method/chef-client" do
+        source "solaris/chef-client.erb"
+        owner "root"
+        group "root"
+        mode "0777"
+        notifies :restart, "service[chef-client]"
+      end
+
+      template (local_path + "chef-client.xml") do
+        source "solaris/manifest.xml.erb"
+        owner "root"
+        group "root"
+        mode "0644"
+        notifies :run, "execute[load chef-client manifest]", :immediately
+      end
   end
   
   execute "load chef-client manifest" do
