@@ -61,7 +61,6 @@ when "smartos"
      owner "root"
      group "root"
      mode "0777"
-     notifies :restart, "service[chef-client]"
    end
 
   template (local_path + "chef-client.xml") do
