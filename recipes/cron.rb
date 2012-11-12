@@ -82,13 +82,11 @@ when "smartos"
   end
   
   execute "load chef-client manifest" do
-    action :nothing
     command "svccfg import #{local_path}chef-client.xml"
-    notifies :restart, "service[chef-client]"
   end
   
   service "chef-client" do
-    action [:enable, :start]
+    action [:disable, :stop]
     provider Chef::Provider::Service::Solaris
   end
 else
