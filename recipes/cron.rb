@@ -55,7 +55,7 @@ when "smartos"
   directory "/etc/svc/method" do
     action :create
   end
-
+  
   template "/etc/svc/method/chef-client" do
      source "smartos/chef-client.erb"
      owner "root"
@@ -77,9 +77,14 @@ when "smartos"
     path node['chef_client']['cron']['path'] if node['chef_client']['cron']['path']
     user	"root"
     shell	"/bin/bash"
-    command "/opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
+    if node['chef-client']['enabled'] == true
+      command "/opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
+    elsif node['chef-client']['enabled'] == false
+      command "# /opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
+    end
   end
   
+       
   execute "load chef-client manifest" do
     command "svccfg import #{local_path}chef-client.xml"
   end
@@ -107,19 +112,19 @@ else
     source "#{dist_dir}/#{conf_dir}/chef-client.erb"
     mode 0644
   end
-
-  service "chef-client" do
-    supports :status => true, :restart => true
-    action [:disable, :stop]
-  end
-
+  
   cron "chef-client" do
     minute node['chef_client']['cron']['minute']	
     hour	node['chef_client']['cron']['hour']
     path node['chef_client']['cron']['path'] if node['chef_client']['cron']['path']
     user	"root"
     shell	"/bin/bash"
-    command "/bin/sleep `/usr/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} &> /dev/null "
+    command "/opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
+  end
+
+  service "chef-client" do
+    supports :status => true, :restart => true
+    action [:disable, :stop]
   end
 end
 
