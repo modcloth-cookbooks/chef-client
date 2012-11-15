@@ -32,6 +32,7 @@ default["chef_client"]["validation_client_name"] = "chef-validator"
 default["chef_client"]["cron"] = { "minute" => "0", "hour" => "3", "path" => nil}
 default["chef_client"]["environment"] = nil
 default["chef_client"]["load_gems"] = {}
+default["chef_client"]["enabled"] = true
 
 case platform
 when "arch"
