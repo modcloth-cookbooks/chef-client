@@ -71,16 +71,18 @@ when "smartos"
     notifies :run, "execute[load chef-client manifest]", :immediately
   end
 
+  
   cron "chef-client" do
     minute node['chef_client']['cron']['minute']	
     hour	node['chef_client']['cron']['hour']
     path node['chef_client']['cron']['path'] if node['chef_client']['cron']['path']
     user	"root"
     shell	"/bin/bash"
-    if node['chef-client']['enabled'] == true
-      command "/opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
-    elsif node['chef-client']['enabled'] == false
-      command "# /opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
+    command "/opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
+    if node['chef_client']['enabled']
+      action :create
+    else
+      action :delete
     end
   end
   
@@ -120,6 +122,11 @@ else
     user	"root"
     shell	"/bin/bash"
     command "/opt/local/bin/sleep `/opt/local/bin/expr $RANDOM \\% 90` &> /dev/null ; #{client_bin} 2>&1 >> #{node['chef_client']['log_dir']}/client.log"
+    if node['chef_client']['enabled']
+      action :create
+    else
+      action :delete
+    end
   end
 
   service "chef-client" do
