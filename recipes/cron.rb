@@ -63,14 +63,13 @@ when "smartos"
      mode "0777"
    end
 
-  template (local_path + "chef-client.xml") do
+  template "#{local_path}chef-client.xml" do
     source "smartos/manifest.xml.erb"
     owner "root"
     group "root"
     mode "0644"
     notifies :run, "execute[load chef-client manifest]", :immediately
   end
-
 
   cron "chef-client" do
     minute node['chef_client']['cron']['minute']	
@@ -134,4 +133,3 @@ else
     action [:disable, :stop]
   end
 end
-
