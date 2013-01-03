@@ -3,7 +3,7 @@
 # Author:: Seth Chisamore (<schisamo@opscode.com>)
 # Author:: Bryan Berry (<bryan.berry@gmail.com>)
 # Cookbook Name:: chef-client
-# Recipe:: cron 
+# Recipe:: cron
 #
 # Copyright 2009-2011, Opscode, Inc.
 #
@@ -51,11 +51,11 @@ end
 case node['platform']
 when "smartos"
   local_path = ::File.join(Chef::Config[:file_cache_path], "/")
-  
+
   directory "/etc/svc/method" do
     action :create
   end
-  
+
   template "/etc/svc/method/chef-client" do
      source "smartos/chef-client.erb"
      owner "root"
@@ -71,7 +71,7 @@ when "smartos"
     notifies :run, "execute[load chef-client manifest]", :immediately
   end
 
-  
+
   cron "chef-client" do
     minute node['chef_client']['cron']['minute']	
     hour	node['chef_client']['cron']['hour']
@@ -85,12 +85,12 @@ when "smartos"
       action :delete
     end
   end
-  
-       
+
+
   execute "load chef-client manifest" do
     command "svccfg import #{local_path}chef-client.xml"
   end
-  
+
   service "chef-client" do
     action [:disable, :stop]
     provider Chef::Provider::Service::Solaris
@@ -114,7 +114,7 @@ else
     source "#{dist_dir}/#{conf_dir}/chef-client.erb"
     mode 0644
   end
-  
+
   cron "chef-client" do
     minute node['chef_client']['cron']['minute']	
     hour	node['chef_client']['cron']['hour']
